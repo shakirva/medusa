@@ -31,8 +31,12 @@ export default async function createCategories({ container }: ExecArgs) {
     })
 
     logger.info(`Created ${Array.isArray(result) ? result.length : 0} categories.`)
-  } catch (err) {
-    logger.error('Failed to create categories:', err)
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      logger.error('Failed to create categories:', err)
+    } else {
+      logger.error('Failed to create categories:', new Error(String(err)))
+    }
     throw err
   }
 }

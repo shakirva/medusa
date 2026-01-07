@@ -6,10 +6,14 @@ import { Modules } from "@medusajs/framework/utils"
  * GET /store/homepage
  * Returns a minimal homepage payload with ordered sections:
  * - hero banners
- * - host_deals (products tagged 'hot-deal')
- * - best_in_powerbanks (products tagged 'powerbank')
- * - best_in_laptops (products tagged 'laptop')
+ * - host_deals (products from "hot-deals" collection)
+ * - best_in_powerbanks (products from "best-in-power-banks" collection)
+ * - best_in_laptops (products from "best-in-laptops" collection) 
+ * - new_arrival (products from "new-arrival" collection)
  * - recommended (latest published products)
+ * 
+ * IMPORTANT: This API now fetches all available store products first and filters
+ * by collection to ensure only products visible to the storefront are returned.
  */
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   try {
@@ -183,25 +187,79 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       return []
     }
 
-  const hostDeals = await productsForSection({ sectionId: 'host_deals', tag: 'hot-deal', take: 8 })
-  const powerbanks = await productsForSection({ sectionId: 'best_in_powerbanks', tag: 'powerbank', take: 8 })
-  const laptops = await productsForSection({ sectionId: 'best_in_laptops', tag: 'laptop', take: 8 })
-  // New Arrivals: prefer collection mapping (new_arrival) then fall back to latest products
-  const newArrivals = await productsForSection({ sectionId: 'new_arrival', take: 12 })
-
-    // Recommended: prefer collection mapping, otherwise fall back to latest published products
-    let recommended = []
-    try {
-      // try section mapping first
-      const mapped = await productsForSection({ sectionId: 'recommended', take: 12 })
-      if (mapped && mapped.length) {
-        recommended = mapped
-      } else {
-        recommended = await productService.listProducts({}, { take: 12, order: { created_at: 'DESC' } })
+  // Helper to validate products exist by checking if they can be retrieved
+  // This filters out ghost products that were deleted but still have stale collection links
+  async function validateProducts(products: any[]): Promise<any[]> {
+    if (!products || !products.length) return []
+    const validProducts: any[] = []
+    for (const p of products) {
+      if (!p || !p.id) continue
+      try {
+        // Try to retrieve the product to confirm it exists
+        const retrieved = await productService.retrieveProduct(p.id)
+        if (retrieved && retrieved.id) {
+          validProducts.push(p)
+        }
+      } catch (err) {
+        // Product doesn't exist - skip it
+        console.log(`Skipping non-existent product: ${p.id}`)
       }
-    } catch (e) {
-      recommended = []
     }
+    return validProducts
+  }
+
+  // Get all available products (limited set from store) and group by collection
+  // This ensures we only return products that are actually accessible via the store API
+  let allStoreProducts: any[] = []
+  try {
+    // Fetch products with collection_id expanded so we can filter by collection
+    allStoreProducts = await productService.listProducts(
+      { status: 'published' },
+      { 
+        take: 200, 
+        order: { created_at: 'DESC' },
+        relations: ['collection']
+      }
+    )
+    // Filter out products without a valid id
+    allStoreProducts = (allStoreProducts || []).filter((p: any) => p && p.id)
+  } catch (e) {
+    console.log('Failed to fetch all products:', e)
+    allStoreProducts = []
+  }
+
+  // Collection handle to products mapping
+  const COLLECTION_HANDLES: Record<string, string[]> = {
+    host_deals: ['hot-deals'],
+    best_in_powerbanks: ['best-in-power-banks', 'powerbanks', 'powerbank'],
+    best_in_laptops: ['best-in-laptops', 'laptops', 'laptop'],
+    new_arrival: ['new-arrival', 'new-arrivals'],
+    recommended: ['recommended', 'featured'],
+  }
+
+  // Function to get products for a section based on collection
+  function getProductsForSection(sectionId: string, limit = 12): any[] {
+    const handles = COLLECTION_HANDLES[sectionId] || []
+    const sectionProducts = allStoreProducts.filter((p: any) => {
+      if (!p.collection_id && !p.collection) return false
+      const collHandle = p.collection?.handle || ''
+      return handles.some(h => collHandle.toLowerCase() === h.toLowerCase())
+    })
+    return sectionProducts.slice(0, limit)
+  }
+
+  // Get products for each section
+  const hostDeals = getProductsForSection('host_deals', 8)
+  const powerbanks = getProductsForSection('best_in_powerbanks', 8)
+  const laptops = getProductsForSection('best_in_laptops', 8)
+  const newArrivals = getProductsForSection('new_arrival', 12)
+  
+  // Recommended: use collection-based first, then fall back to all available products
+  let recommended = getProductsForSection('recommended', 12)
+  if (!recommended.length) {
+    // Fall back to the latest products
+    recommended = allStoreProducts.slice(0, 12)
+  }
 
     // For frontend convenience, include both lightweight item refs (product_id)
     // and denormalized product objects under `products` for each product_grid section.

@@ -1,12 +1,13 @@
 import { Modules } from "@medusajs/framework/utils"
 import { BRAND_MODULE } from "../modules/brands"
+import { ExecArgs } from "@medusajs/framework/types"
 
 /**
  * Script to link a subset of products to the first brand.
  * Usage: yarn medusa exec link-products-to-brands.ts
  */
-export default async function linkProductsToBrand({ container }) {
-  const brandService = container.resolve(BRAND_MODULE)
+export default async function linkProductsToBrand({ container }: ExecArgs) {
+  const brandService = container.resolve(BRAND_MODULE) as any
   const productService = container.resolve(Modules.PRODUCT)
 
   const [brand] = await brandService.listBrands({}, { take: 1 })

@@ -30,7 +30,7 @@ export default async function testMediaIntegration({ container }: ExecArgs) {
   const url = `${origin.replace(/\/$/, '')}/store/media?gallery_id=${encodeURIComponent(galleryId)}`
   const res = await fetch(url, { headers: { 'x-publishable-api-key': key } })
   if (!res.ok) throw new Error(`Store media fetch failed: ${res.status}`)
-  const json = await res.json()
+  const json = await res.json() as { media?: unknown[] }
   if (!json.media || json.media.length === 0) throw new Error('Store media returned no items')
 
   console.log('Integration test passed: media returned from store endpoint')

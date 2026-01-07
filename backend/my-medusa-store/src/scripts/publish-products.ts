@@ -1,6 +1,7 @@
 import { Modules } from "@medusajs/framework/utils"
+import { ExecArgs } from "@medusajs/framework/types"
 
-export default async function publishProducts({ container }) {
+export default async function publishProducts({ container }: ExecArgs) {
   const productModuleService = container.resolve(Modules.PRODUCT)
   const salesChannelModuleService = container.resolve(Modules.SALES_CHANNEL)
   const remoteLink = container.resolve("remoteLink")

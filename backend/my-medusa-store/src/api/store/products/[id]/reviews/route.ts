@@ -24,6 +24,6 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   if (rating == null) {
     return res.status(400).json({ message: "rating required" })
   }
-  const review = await reviewService.createReview(customer_id, product_id, Number(rating), title, content)
+  const review = await reviewService.addReview(customer_id, product_id, Number(rating), title, content)
   res.json({ review })
 }

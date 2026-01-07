@@ -57,8 +57,9 @@ export default async function createSampleHomepage({ container }: ExecArgs) {
     } else {
       console.log('ℹ️ No products found to tag in demo')
     }
-  } catch (e) {
-    console.warn('⚠️ Failed to tag demo products:', e?.message || e)
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    console.warn('⚠️ Failed to tag demo products:', err?.message || e)
   }
 
   // If HOMEPAGE_COLLECTIONS env var is present, try to assign products to those collections
@@ -81,7 +82,7 @@ export default async function createSampleHomepage({ container }: ExecArgs) {
               const tryMethods = ['retrieveByHandle', 'getCollectionByHandle', 'getByHandle', 'list']
               for (const m of tryMethods) {
                 try {
-                  const fn = collectionService[m]
+                  const fn = (collectionService as Record<string, unknown>)[m]
                   if (typeof fn === 'function') {
                     if (m === 'list') {
                       const r = await fn.call(collectionService, { handle: candidate })
@@ -141,9 +142,10 @@ export default async function createSampleHomepage({ container }: ExecArgs) {
         }
       }
     }
-  } catch (err) {
+  } catch (err: unknown) {
     // non-fatal
-    console.warn('⚠️ Failed to assign demo products to collections:', err?.message || err)
+    const e = err as { message?: string }
+    console.warn('⚠️ Failed to assign demo products to collections:', e?.message || err)
   }
 
   console.log('✅ Sample homepage seed complete')

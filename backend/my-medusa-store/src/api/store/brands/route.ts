@@ -27,11 +27,11 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const enriched = [] as any[]
   for (const b of brands) {
     const productIds = await brandModuleService.listBrandProducts(b.id)
-    // Ensure logo_url is absolute so frontend can fetch directly
-    const origin = (process.env.MEDUSA_URL && process.env.MEDUSA_URL.replace(/\/$/, '')) || `${(req.headers['x-forwarded-proto'] as string) || (req.protocol as string) || 'http'}://${req.headers.host || 'localhost:9000'}`
+    // Keep logo_url as-is since brand logos are hosted in frontend /public/brands/ folder
+    // The frontend will serve these directly from its public directory
     const logo = b.logo_url
-  const absLogo = logo ? (logo.startsWith('http://') || logo.startsWith('https://') ? logo : `${origin}${logo.startsWith('/') ? logo : `/${logo}`}`) : null
-    enriched.push({ ...b, product_count: productIds.length, logo_url: absLogo })
+    // Don't prefix with backend URL - these are frontend-local paths like /brands/apple.svg
+    enriched.push({ ...b, product_count: productIds.length, logo_url: logo })
   }
   res.json({ brands: enriched, count, limit, offset })
 }

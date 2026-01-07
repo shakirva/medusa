@@ -4,10 +4,17 @@
 .idea
 .vscode
 
-# dependencies
+# Dependencies
 /node_modules
+node_modules
 /.pnp
 .pnp.js
+
+# Lock files - REMOVED for cross-platform compatibility (macOS ARM64 dev -> Linux x64 prod)
+# Native bindings differ between architectures, causing install failures
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
 # testing
 /coverage
@@ -41,7 +48,6 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-node_modules
 
 .yarn
 .swc

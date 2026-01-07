@@ -35,7 +35,7 @@ export default async function createSampleVideo({ container }: ExecArgs) {
   console.log('Fetching store endpoint:', url)
   const res = await fetch(url, { headers: { 'x-publishable-api-key': key } })
   if (!res.ok) throw new Error(`Store media fetch failed: ${res.status}`)
-  const json = await res.json()
+  const json = await res.json() as { media?: unknown[] }
   console.log('Store media response:', json)
   if (!json.media || json.media.length === 0) throw new Error('Store media returned no items')
 

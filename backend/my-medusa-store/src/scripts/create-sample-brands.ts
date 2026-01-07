@@ -1,7 +1,8 @@
 import { BRAND_MODULE } from "../modules/brands"
+import { ExecArgs } from "@medusajs/framework/types"
 
-export default async function seedBrands({ container }) {
-  const brandService = container.resolve(BRAND_MODULE)
+export default async function seedBrands({ container }: ExecArgs) {
+  const brandService = container.resolve(BRAND_MODULE) as any
 
   const data = [
     {

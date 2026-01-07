@@ -1,21 +1,56 @@
-/dist
-.env
-.DS_Store
-/uploads
+# Dependencies
+node_modules/
 /node_modules
-yarn-error.log
 
-.idea
+# Lock files - REMOVED for cross-platform compatibility (macOS ARM64 dev -> Linux x64 prod)
+# Native bindings differ between architectures, causing install failures
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
-coverage
-
-!src/**
-
-./tsconfig.tsbuildinfo
-medusa-db.sql
+# Build output
+/dist
 build
 .cache
+.medusa
 
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea
+.vscode
+
+# Uploads & static generated
+/uploads
+static/uploads/
+
+# Testing
+coverage
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# TypeScript
+./tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# Database dumps
+medusa-db.sql
+.medusatest.sqlite
+
+# Medusa build artifacts
+public/admin
+
+# Yarn
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
@@ -23,9 +58,6 @@ build
 !.yarn/sdks
 !.yarn/versions
 
-.medusatest.sqlite
-static/uploads/
-# Medusa build artifacts
-public/admin
-.medusa
+# Keep source files
+!src/**
 
