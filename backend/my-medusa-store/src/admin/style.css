@@ -104,8 +104,56 @@ nav [data-active="true"] {
   outline-color: var(--marqa-primary) !important;
 }
 
-/* Checkbox styling */
+/* Checkbox styling - ensure visibility in dark mode */
+input[type="checkbox"] {
+  appearance: auto !important;
+  -webkit-appearance: checkbox !important;
+  width: 16px !important;
+  height: 16px !important;
+  border: 2px solid rgba(255,255,255,0.3) !important;
+  border-radius: 4px !important;
+  background: transparent !important;
+  cursor: pointer !important;
+  accent-color: var(--marqa-primary) !important;
+}
+
 input[type="checkbox"]:checked {
   background-color: var(--marqa-primary) !important;
   border-color: var(--marqa-primary) !important;
+}
+
+/* Ensure checkmarks are visible in data tables */
+[role="checkbox"],
+[data-state="checked"],
+[data-state="unchecked"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Data table row selection checkboxes */
+table input[type="checkbox"],
+[class*="DataTable"] input[type="checkbox"],
+[class*="datatable"] input[type="checkbox"],
+[class*="Checkbox"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: inline-flex !important;
+}
+
+/* Checked state indicator for Radix UI checkboxes */
+[data-state="checked"] svg,
+[data-state="checked"]::after {
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: white !important;
+}
+
+/* Products modal checkboxes */
+[role="dialog"] input[type="checkbox"],
+[class*="Modal"] input[type="checkbox"],
+[class*="Drawer"] input[type="checkbox"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
 }

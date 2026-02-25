@@ -163,7 +163,7 @@ module.exports = {
 
 ### Environment File
 
-Create `/var/www/marqa-souq/frontend/markasouq-web/.env.production`:
+Create `/var/www/marqa-souq/frontend/markasouq-web/tion`:
 
 ```env
 NEXT_PUBLIC_MEDUSA_BACKEND_URL=https://api.your-domain.com
